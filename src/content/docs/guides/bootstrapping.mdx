@@ -1,0 +1,130 @@
+---
+title: Bootstrapping AWS
+description: The AWS credentials, deployer role, and OIDC provider each account needs before Rolepass can plan or apply.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The `validate` and `preview` commands work offline. But before `plan` and `apply`
+can manage roles, each target account needs three things in place. You set these up
+**once per account**, typically with Terraform, CloudFormation, or a one-time
+script.
+
+<Steps>
+
+1. ### AWS credentials
+
+   Rolepass uses the standard AWS credential chain (environment variables, shared
+   config/credentials files, SSO, instance/container roles, and web identity
+   tokens). Whatever identity Rolepass runs as must be allowed to call
+   `sts:AssumeRole` on the deployer role in each target account.
+
+   A common setup is a single "management" identity whose only job is to assume the
+   deployer role in each account. When Rolepass itself runs inside CI, it can pick
+   up credentials from `AWS_WEB_IDENTITY_TOKEN_FILE` and `AWS_ROLE_ARN`
+   automatically. See the [CLI reference](/reference/cli/#environment-variables).
+
+2. ### The deployer role
+
+   Each target account needs a bootstrapped IAM role that Rolepass assumes to do its
+   work. The default name is `rolepass-deployer`; override it per account with
+   `deployer_role_name` in `accounts.yaml`.
+
+   This role needs two things:
+
+   **A trust policy** allowing your management identity to assume it. For example,
+   trusting a specific principal:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Principal": { "AWS": "arn:aws:iam::999999999999:role/rolepass-runner" },
+         "Action": "sts:AssumeRole"
+       }
+     ]
+   }
+   ```
+
+   **A permission policy** granting the IAM actions Rolepass performs when creating,
+   updating, and deleting managed roles:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": [
+           "iam:GetRole",
+           "iam:CreateRole",
+           "iam:UpdateRole",
+           "iam:DeleteRole",
+           "iam:UpdateAssumeRolePolicy",
+           "iam:GetRolePolicy",
+           "iam:PutRolePolicy",
+           "iam:DeleteRolePolicy",
+           "iam:ListRoles",
+           "iam:ListRoleTags",
+           "iam:TagRole",
+           "tag:GetResources"
+         ],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
+
+   <Aside type="tip">
+   For tighter security, scope the role-mutating actions to a path or naming
+   convention (for example `arn:aws:iam::*:role/ci-*`) so the deployer can only
+   touch roles it's meant to manage. `iam:ListRoles`, `iam:ListRoleTags`, and
+   `tag:GetResources` are used for orphan detection and generally need a broad
+   resource.
+   </Aside>
+
+3. ### The OIDC identity provider
+
+   For a federated role's trust policy to work, the target account must have the
+   corresponding OIDC provider registered. Rolepass generates trust policies that
+   reference:
+
+   - `token.actions.githubusercontent.com` for GitHub Actions
+   - `gitlab.com` (or your self-hosted host) for GitLab CI
+
+   Register the provider once per account. The provider's issuer URL must match the
+   `issuer` Rolepass uses (the default for each provider, or whatever you set in the
+   role's `trust.issuer`). AWS documents this under
+   *IAM → Identity providers → Add provider → OpenID Connect*.
+
+</Steps>
+
+## Partitions and ARNs
+
+Rolepass builds ARNs using each account's `partition`. If you operate in AWS China
+or GovCloud, set `partition` on those accounts in `accounts.yaml` so the generated
+provider ARNs use the correct prefix:
+
+| Partition    | ARN prefix                         |
+| ------------ | ---------------------------------- |
+| `aws`        | `arn:aws:...` (default)            |
+| `aws-cn`     | `arn:aws-cn:...` (China)           |
+| `aws-us-gov` | `arn:aws-us-gov:...` (GovCloud)    |
+
+For example, a GitHub OIDC provider ARN in the China partition becomes
+`arn:aws-cn:iam::<account-id>:oidc-provider/token.actions.githubusercontent.com`.
+
+## Verifying the bootstrap
+
+Once all three pieces are in place, `rolepass plan` should be able to assume the
+deployer role in each account and report a plan. If it fails with an assume-role
+error, check that:
+
+- Your credentials are valid and match the principal trusted by the deployer role.
+- The `deployer_role_name` in `accounts.yaml` matches the actual role name.
+- The account `id` is correct.
+
+Next: put a role to use in [GitHub Actions](/guides/github-actions/) or
+[GitLab CI](/guides/gitlab-ci/).

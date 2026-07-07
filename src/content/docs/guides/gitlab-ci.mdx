@@ -1,0 +1,113 @@
+---
+title: GitLab CI
+description: Define a GitLab-federated role with Rolepass, including self-hosted instances, and assume it from a GitLab CI job.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This guide covers defining a GitLab-federated role in Rolepass and assuming it from
+a `.gitlab-ci.yml` job. It works with both GitLab.com and self-hosted instances.
+
+## 1. Define the role in Rolepass
+
+Set `trust.provider` to `gitlab`. The `repo` is the project's full path. For a
+self-hosted instance, set `issuer` to your GitLab host:
+
+```yaml title="roles/gitlab-deploy.yaml"
+name: gitlab-deploy
+description: Deployment role for GitLab CI
+accounts:
+  - production
+trust:
+  provider: gitlab
+  issuer: gitlab.mycompany.com   # omit for GitLab.com (defaults to gitlab.com)
+  repo: devops-group/infrastructure
+  refs:
+    - refs/heads/main
+    - refs/tags/v1.0
+permissions:
+  - sid: DeployInfra
+    effect: Allow
+    actions:
+      - s3:PutObject
+      - cloudformation:*
+    resources:
+      - "*"
+```
+
+### How the trust is generated
+
+GitLab's OIDC subject claim uses a different shape than GitHub's. Rolepass
+translates each ref into GitLab's `project_path:...:ref_type:...:ref:...` format:
+
+| Config                       | Generated `sub` claim                                                 |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `refs: [refs/heads/main]`    | `project_path:devops-group/infrastructure:ref_type:branch:ref:main`   |
+| `refs: [refs/tags/v1.0]`     | `project_path:devops-group/infrastructure:ref_type:tag:ref:v1.0`      |
+| `refs: [refs/heads/*]`       | `project_path:devops-group/infrastructure:ref_type:branch:ref:*`      |
+| *(no `refs`)*                | `project_path:devops-group/infrastructure:*`                          |
+
+<Aside type="caution">
+For GitLab, refs **must** be written as `refs/heads/<name>` (a branch) or
+`refs/tags/<name>` (a tag). Rolepass parses the prefix to derive the `ref_type` and
+strips it to the short name. Any other format (for example a bare `main`) is
+rejected during policy generation. Wildcards in the short name are allowed, e.g.
+`refs/heads/*` or `refs/tags/v*`.
+</Aside>
+
+Preview, plan, and apply:
+
+```sh
+rolepass preview
+rolepass plan
+rolepass apply
+```
+
+## 2. Assume the role from a CI job
+
+GitLab CI mints an OIDC token for you via the `id_tokens` keyword. Your job
+exchanges that token for AWS credentials with
+`aws sts assume-role-with-web-identity`:
+
+```yaml title=".gitlab-ci.yml"
+deploy:
+  image: amazon/aws-cli:latest
+  id_tokens:
+    AWS_ID_TOKEN:
+      aud: sts.amazonaws.com
+  variables:
+    ROLE_ARN: arn:aws:iam::123456789012:role/gitlab-deploy
+    AWS_DEFAULT_REGION: eu-west-1
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  script:
+    - >
+      export $(aws sts assume-role-with-web-identity
+      --role-arn "$ROLE_ARN"
+      --role-session-name "gitlab-$CI_PIPELINE_ID"
+      --web-identity-token "$AWS_ID_TOKEN"
+      --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
+      --output text
+      | awk '{print "AWS_ACCESS_KEY_ID="$1"\nAWS_SECRET_ACCESS_KEY="$2"\nAWS_SESSION_TOKEN="$3}')
+    - aws sts get-caller-identity
+    - aws s3 sync ./dist s3://my-deploy-bucket/
+```
+
+<Aside type="note">
+The `aud` you set under `id_tokens` (here `sts.amazonaws.com`) must match the
+audience in the role's trust policy. Rolepass always generates the audience
+condition as `sts.amazonaws.com`, so use exactly that value.
+</Aside>
+
+### Matching refs
+
+The job's `rules` limit it to the `main` branch, producing a subject of
+`project_path:devops-group/infrastructure:ref_type:branch:ref:main`, matching the
+`refs/heads/main` entry in the role. Ensure the role's `refs` cover every ref your
+pipeline runs on, or the assume-role call returns an authorization error.
+
+## Prerequisites recap
+
+The target account must have a GitLab OIDC provider registered (with an issuer URL
+matching `issuer`) and a deployer role for Rolepass to assume. See
+[Bootstrapping AWS](/guides/bootstrapping/).

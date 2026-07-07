@@ -1,0 +1,164 @@
+---
+title: Getting Started
+description: Scaffold a project, define your first role, and apply it to AWS for a complete first run of Rolepass.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+This walkthrough takes you from an empty directory to a live IAM role. It assumes
+you've already [installed Rolepass](/guides/installation/). The `plan` and `apply`
+steps require AWS access. If your accounts aren't ready yet, see
+[Bootstrapping AWS](/guides/bootstrapping/) first, or stop after `preview`, which
+needs no credentials.
+
+<Steps>
+
+1. ### Scaffold a project
+
+   Run `init` in an empty directory. It creates a starter `accounts.yaml` and a
+   sample role at `roles/deploy.yaml`:
+
+   ```sh
+   rolepass init
+   ```
+
+   ```
+   Created accounts.yaml
+   Created roles/deploy.yaml
+
+   Edit these files, then run `rolepass validate` to check your config.
+   ```
+
+   <Aside type="note">
+   `init` refuses to overwrite existing files. If `accounts.yaml` or
+   `roles/deploy.yaml` already exist, it stops without changing anything.
+   </Aside>
+
+   The generated files look like this:
+
+   ```yaml title="accounts.yaml"
+   accounts:
+     - name: production
+       id: "123456789012"
+     - name: staging
+       id: "123456789013"
+   ```
+
+   ```yaml title="roles/deploy.yaml"
+   name: deploy
+   description: CI/CD deployment role
+   accounts:
+     - production
+   trust:
+     provider: github
+     repo: my-org/my-repo
+     refs:
+       - refs/heads/main
+   permissions:
+     - effect: Allow
+       actions:
+         - sts:GetCallerIdentity
+       resources:
+         - "*"
+   ```
+
+2. ### Edit the config for your environment
+
+   Replace the sample values with your own:
+
+   - In `accounts.yaml`, set real account names and 12-digit AWS account IDs.
+   - In `roles/deploy.yaml`, set the `repo` to your GitHub repository, list the
+     `accounts` you want the role in, and replace the placeholder permissions with
+     the actions your pipeline actually needs.
+
+   See the [roles reference](/reference/roles/) for every available field.
+
+3. ### Validate the config
+
+   `validate` checks both files against Rolepass's JSON schemas and confirms that
+   every account referenced by a role exists in `accounts.yaml`. It makes **no AWS
+   calls**:
+
+   ```sh
+   rolepass validate
+   ```
+
+   Fix any reported errors before continuing.
+
+4. ### Preview the generated policies
+
+   `preview` prints the exact IAM trust policy and permission policy Rolepass would
+   create for each role/account pair, as pretty-printed JSON. This is the best way
+   to sanity-check your OIDC trust before involving AWS. It also makes **no AWS
+   calls**:
+
+   ```sh
+   rolepass preview
+   ```
+
+   See [Trust policies](/reference/trust-policies/) to understand the generated
+   output.
+
+5. ### Plan the changes
+
+   `plan` assumes the deployer role in each target account, reads the current state
+   of your roles, and prints a diff. Nothing is changed:
+
+   ```sh
+   rolepass plan
+   ```
+
+   ```
+   Assuming deployer roles in 1 account(s)...
+
+   Plan:
+
+     + deploy in production (123456789012): CREATE
+
+   Summary: 1 to create, 0 to update, 0 to delete, 0 unchanged
+   ```
+
+   <Aside type="caution">
+   `plan` needs AWS credentials and a bootstrapped deployer role in each account.
+   If it fails to assume a role, see [Bootstrapping AWS](/guides/bootstrapping/).
+   </Aside>
+
+6. ### Apply
+
+   When the plan looks right, apply it. Rolepass shows the plan again and asks for
+   confirmation:
+
+   ```sh
+   rolepass apply
+   ```
+
+   ```
+   Do you want to apply these changes? (yes/no): yes
+
+   Applying changes...
+     Creating deploy in production (123456789012)... done
+
+   Apply complete: 1 succeeded, 0 failed
+   ```
+
+   In non-interactive environments (like CI), skip the prompt with `--yes`:
+
+   ```sh
+   rolepass apply --yes
+   ```
+
+</Steps>
+
+## What you have now
+
+Your role exists in AWS, tagged `managed-by: rolepass`, with a single inline policy
+named `rolepass-policy`. Re-running `plan` now reports **no changes**, because
+Rolepass is idempotent, so it's safe to run on every commit.
+
+## Next steps
+
+- Wire a pipeline up to the role: [GitHub Actions](/guides/github-actions/) or
+  [GitLab CI](/guides/gitlab-ci/).
+- Learn the day-to-day operating model in the
+  [Plan & Apply Workflow](/guides/workflow/) guide.
+- Review the [Best Practices](/guides/best-practices/) before going to production.

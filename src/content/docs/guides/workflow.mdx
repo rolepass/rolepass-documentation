@@ -1,0 +1,107 @@
+---
+title: Plan & Apply Workflow
+description: How to operate Rolepass day to day, reading plans, handling orphans, and running it inside CI.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Once your accounts are bootstrapped and your roles are defined, running Rolepass
+becomes a routine. This guide covers the operating model.
+
+## Always plan before you apply
+
+`plan` and `apply` do the same read work: assume the deployer role in each account,
+fetch current state, and compute a diff. The difference is that `apply` then
+executes the diff. Running `plan` first lets you review the change set before
+anything is modified:
+
+```sh
+rolepass plan
+```
+
+`apply` re-computes and re-displays the plan, then asks for confirmation, so it
+never applies a stale plan.
+
+## Reading plan output
+
+Each role/account pair is categorized into one of four actions:
+
+| Marker      | Action     | Meaning                                                              |
+| ----------- | ---------- | ------------------------------------------------------------------- |
+| `+`         | `CREATE`   | The role doesn't exist yet and will be created.                     |
+| `~`         | `UPDATE`   | The role exists but differs from config; the changes are listed.    |
+| `-`         | `DELETE`   | An orphan, a `managed-by: rolepass` role no longer in config.       |
+| *(none)*    | no change  | The role already matches config exactly; nothing to do.             |
+
+An `UPDATE` spells out exactly what changed: any of the trust policy, the
+permission policy, the max session duration, or the description:
+
+```
+Plan:
+
+  + api-deploy in production (111111111111): CREATE
+  ~ web-deploy in production (111111111111): UPDATE
+      - trust policy changed
+      - max session duration: 3600s -> 1800s
+  - legacy-deploy in production (111111111111): DELETE
+
+Summary: 1 to create, 1 to update, 1 to delete, 0 unchanged
+```
+
+## Orphan cleanup
+
+Rolepass tags every role it creates with `managed-by: rolepass`. During `plan`, it
+lists tagged roles in each account and compares them to your config. Any tagged role
+that's no longer defined is an **orphan** and is planned for `DELETE`.
+
+This is what keeps accounts tidy: delete a role file (or drop an account from a
+role's `accounts` list), and the next `apply` removes the now-orphaned role. On
+delete, Rolepass removes the `rolepass-policy` inline policy and then the role.
+
+<Aside type="caution">
+Orphan detection only ever affects roles tagged `managed-by: rolepass`. Roles you
+created by other means are never touched. Still, because removing a role from
+config causes deletion, review `DELETE` lines in a plan carefully before applying.
+</Aside>
+
+<Aside type="note">
+Orphan detection queries the Resource Groups Tagging API, falling back to
+`ListRoles` + `ListRoleTags` when the tagging index lags (newly created roles can
+take time to appear in the tagging index).
+</Aside>
+
+## Running Rolepass in CI
+
+Rolepass is designed to run in a pipeline of its own: a "roles" repo where changes
+to `accounts.yaml` and `roles/` are reviewed and merged, then applied automatically.
+
+- **Skip the prompt** with `--yes` (or `-y`) so `apply` runs non-interactively. If
+  stdin is not a terminal and `--yes` is absent, `apply` refuses to proceed rather
+  than hang.
+- **Gate on the plan**: a common pattern is to run `rolepass plan` on pull
+  requests (surface the diff for review) and `rolepass apply --yes` on merge to the
+  main branch.
+- **Point at your config** with `--config-dir`, or override individual files with
+  `--accounts` / `--roles`. All three have environment-variable equivalents
+  (`ROLEPASS_CONFIG_DIR`, `ROLEPASS_ACCOUNTS`, `ROLEPASS_ROLES`). See the
+  [CLI reference](/reference/cli/).
+- Rolepass running in CI can itself federate via OIDC: if
+  `AWS_WEB_IDENTITY_TOKEN_FILE` and `AWS_ROLE_ARN` are set, the AWS credential chain
+  uses them automatically, so no static keys are needed to run Rolepass either.
+
+## Idempotency and retries
+
+Rolepass is idempotent: re-running `apply` when nothing has changed reports all
+roles as unchanged and makes no calls that modify state. If an `apply` partially
+fails, it reports how many operations succeeded and failed and exits non-zero, so you
+can safely re-run it to retry only the operations that still differ.
+
+```
+Apply complete: 3 succeeded, 1 failed
+```
+
+## Validate offline in pre-commit
+
+Because `validate` and `preview` make no AWS calls, they're ideal for fast,
+credential-free checks, in a pre-commit hook or an early CI stage, before the
+slower `plan` stage that needs AWS access.

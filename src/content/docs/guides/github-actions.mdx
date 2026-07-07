@@ -1,0 +1,130 @@
+---
+title: GitHub Actions
+description: Define a GitHub-federated role with Rolepass and assume it from a GitHub Actions workflow.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This guide covers both halves of a GitHub Actions integration: the **Rolepass side**
+(defining the role and its trust), and the **consumer side** (a workflow that
+assumes the role to get AWS credentials).
+
+## 1. Define the role in Rolepass
+
+Set `trust.provider` to `github`. The `repo` is your `owner/name` slug, and `refs`
+restricts which branches or tags may assume the role:
+
+```yaml title="roles/deploy.yaml"
+name: github-deploy
+description: Deployment role for GitHub Actions
+accounts:
+  - production
+trust:
+  provider: github
+  repo: my-org/my-repo
+  refs:
+    - refs/heads/main
+    - refs/tags/v*
+permissions:
+  - effect: Allow
+    actions:
+      - s3:GetObject
+      - s3:PutObject
+    resources:
+      - "arn:aws:s3:::my-deploy-bucket/*"
+```
+
+### How the trust is generated
+
+Rolepass builds a trust policy that federates against the GitHub OIDC provider
+(`token.actions.githubusercontent.com`) and constrains the token's `sub` claim to
+your repo and refs. Each ref becomes a subject pattern:
+
+| Config                        | Generated `sub` claim                        |
+| ----------------------------- | -------------------------------------------- |
+| `refs: [refs/heads/main]`     | `repo:my-org/my-repo:ref:refs/heads/main`    |
+| `refs: [refs/tags/v*]`        | `repo:my-org/my-repo:ref:refs/tags/v*`       |
+| *(no `refs`)*                 | `repo:my-org/my-repo:*` (any ref in the repo)|
+
+<Aside type="note">
+For GitHub, `refs` values are passed through verbatim into the `ref:` portion of
+the claim, and wildcards (`*`) are matched with IAM's `StringLike`. Omitting `refs`
+trusts **any** workflow in the repository, so prefer listing specific refs. See the
+[trust policies reference](/reference/trust-policies/) for the full generated JSON.
+</Aside>
+
+Preview the exact policy before applying:
+
+```sh
+rolepass preview
+```
+
+Then plan and apply as usual:
+
+```sh
+rolepass plan
+rolepass apply
+```
+
+## 2. Assume the role from a workflow
+
+Rolepass only creates the role; your workflow does the assuming. Use the official
+[`aws-actions/configure-aws-credentials`](https://github.com/aws-actions/configure-aws-credentials)
+action, which performs the OIDC token exchange for you.
+
+Two things are required:
+
+- **`permissions: id-token: write`** on the job, so GitHub will mint an OIDC token.
+- The **role ARN** of the role Rolepass created.
+
+```yaml title=".github/workflows/deploy.yml"
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-deploy
+          aws-region: eu-west-1
+
+      - name: Verify identity
+        run: aws sts get-caller-identity
+
+      - name: Deploy
+        run: aws s3 sync ./dist s3://my-deploy-bucket/
+```
+
+<Aside type="caution">
+The `role-to-assume` account ID, the role `name` in your Rolepass config, and the
+account listed under the role's `accounts` must all line up. A role named
+`github-deploy` deployed to account `123456789012` is assumed as
+`arn:aws:iam::123456789012:role/github-deploy`.
+</Aside>
+
+### Matching refs
+
+The workflow above triggers on `push` to `main`, so the OIDC token's `sub` is
+`repo:my-org/my-repo:ref:refs/heads/main`, which matches the `refs/heads/main`
+entry in the role. If your workflow runs on tags, pull requests, or environments,
+make sure the role's `refs` cover the corresponding subject. A mismatch shows up as
+an `AccessDenied` / `Not authorized to perform sts:AssumeRoleWithWebIdentity` error
+at the credentials step.
+
+## Prerequisites recap
+
+For this to work, the target account must have the GitHub OIDC provider registered
+and a deployer role for Rolepass to assume. Both are covered in
+[Bootstrapping AWS](/guides/bootstrapping/).

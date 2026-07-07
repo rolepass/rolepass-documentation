@@ -1,0 +1,65 @@
+---
+title: Rolepass
+description: Manage AWS IAM roles for CI/CD pipelines across multiple accounts using OIDC federation.
+template: splash
+hero:
+  tagline: Declarative, version-controlled AWS IAM roles for CI/CD, federated with GitHub and GitLab OIDC, planned before applied, across every account.
+  actions:
+    - text: Get started
+      link: /guides/introduction/
+      icon: right-arrow
+    - text: CLI reference
+      link: /reference/cli/
+      icon: document
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Rolepass replaces hand-managed IAM roles and long-lived access keys with a single
+declarative config. Define your roles once, preview the exact changes, and apply
+them to any number of AWS accounts; all trust is federated through GitHub or
+GitLab OIDC, so no static credentials ever leave your CI system.
+
+<CardGrid stagger>
+	<Card title="Multi-account" icon="puzzle">
+		Deploy roles to any number of AWS accounts from a single configuration.
+	</Card>
+	<Card title="GitHub & GitLab OIDC" icon="github">
+		Federated trust policies with support for self-hosted GitLab instances.
+	</Card>
+	<Card title="Declarative YAML" icon="document">
+		Define roles, permissions, and trust in version-controlled files.
+	</Card>
+	<Card title="Plan before apply" icon="magnifier">
+		Preview exactly what will be created, updated, or deleted before touching AWS.
+	</Card>
+	<Card title="Orphan detection" icon="warning">
+		Automatically finds Rolepass-managed roles that are no longer in your config.
+	</Card>
+	<Card title="Partition support" icon="setting">
+		Works across the `aws`, `aws-cn`, and `aws-us-gov` partitions.
+	</Card>
+</CardGrid>
+
+## Where to next?
+
+<CardGrid>
+	<Card title="New to Rolepass?" icon="open-book">
+		Start with the [Introduction](/guides/introduction/) to learn the core
+		concepts, then follow [Getting Started](/guides/getting-started/) for a
+		hands-on walkthrough.
+	</Card>
+	<Card title="Setting up AWS?" icon="rocket">
+		[Bootstrapping AWS](/guides/bootstrapping/) covers the deployer role and
+		OIDC provider each account needs before you can run `plan` or `apply`.
+	</Card>
+	<Card title="Wiring up CI?" icon="seti:github">
+		See [GitHub Actions](/guides/github-actions/) or [GitLab CI](/guides/gitlab-ci/)
+		for end-to-end examples, including how a pipeline assumes the role.
+	</Card>
+	<Card title="Looking for details?" icon="list-format">
+		The [Reference](/reference/cli/) documents every command, config field,
+		and generated policy.
+	</Card>
+</CardGrid>

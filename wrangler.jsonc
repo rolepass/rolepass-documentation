@@ -1,0 +1,21 @@
+{
+	// Cloudflare Workers config for the Rolepass docs (static site, no Worker script).
+	// Deploy with: bun wrangler deploy
+	"name": "rolepass-docs",
+	"compatibility_date": "2026-07-07",
+
+	// Build the Astro/Starlight site before deploying, so `bun wrangler deploy`
+	// works on its own.
+	"build": {
+		"command": "bun run build"
+	},
+
+	// Serve the static build output from Workers Static Assets.
+	"assets": {
+		"directory": "./dist/",
+		// Serve the generated 404.html for unmatched routes.
+		"not_found_handling": "404-page",
+		// Match Astro's directory-style URLs (e.g. /guides/introduction/).
+		"html_handling": "auto-trailing-slash"
+	}
+}
