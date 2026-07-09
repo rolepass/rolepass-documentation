@@ -1,49 +1,31 @@
-# Starlight Starter Kit: Basics
+# Rolepass Documentation
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+This repository contains the source for [rolepass.dev](https://rolepass.dev), the documentation site for [Rolepass](https://github.com/rolepass/rolepass).
 
-```
-bun create astro@latest -- --template starlight
-```
+The site is built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Development
 
-## 🚀 Project Structure
+Install [bun](https://bun.sh), then:
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+| Command           | Action                                         |
+|:------------------|:-----------------------------------------------|
+| `bun install`     | Install dependencies                           |
+| `bun dev`         | Start the local dev server at `localhost:4321` |
+| `bun run build`   | Build the production site to `./dist/`         |
+| `bun run preview` | Preview the production build locally           |
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
-```
+## Editing content
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+All pages are Markdown/MDX files in `src/content/docs/`:
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+- `guides/` - narrative guides (introduction, installation, CI setup, …)
+- `reference/` - reference material (CLI, config file formats)
 
-Static assets, like favicons, can be placed in the `public/` directory.
+Each file maps to a route based on its path, e.g. `src/content/docs/guides/installation.md` becomes `/guides/installation/`. Guide pages are ordered explicitly in the `sidebar` section of `astro.config.mjs`; reference pages are picked up automatically.
 
-## 🧞 Commands
+Changes merged to `main` are deployed automatically.
 
-All commands are run from the root of the project, from a terminal:
+## License
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+[MIT](./LICENSE)
