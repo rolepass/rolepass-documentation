@@ -1,11 +1,11 @@
 ---
 title: Trust policies
-description: How Rolepass generates OIDC trust policies, including the subject-claim formats for GitHub and GitLab.
+description: How RolePass generates OIDC trust policies, including the subject-claim formats for GitHub and GitLab.
 sidebar:
   order: 4
 ---
 
-For every role/account pair, Rolepass generates an IAM trust policy that federates
+For every role/account pair, RolePass generates an IAM trust policy that federates
 against an OIDC provider and constrains which repository and refs may assume the
 role. This page documents exactly what it produces. Use `rolepass preview` to see
 the output for your own config.
@@ -70,7 +70,7 @@ wildcards work as-is.
 | `refs/tags/v1.0`             | `project_path:<repo>:ref_type:tag:ref:v1.0`             |
 
 GitLab refs **must** be `refs/heads/<name>` (mapped to `ref_type:branch`) or
-`refs/tags/<name>` (mapped to `ref_type:tag`). Rolepass strips the prefix to the
+`refs/tags/<name>` (mapped to `ref_type:tag`). RolePass strips the prefix to the
 short name and derives the `ref_type`. Any other format, for example a bare
 `main`, is rejected during policy generation. Wildcards in the short name (e.g.
 `refs/heads/*`, `refs/tags/v*`) are allowed.

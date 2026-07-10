@@ -1,11 +1,11 @@
 ---
 title: Plan & Apply Workflow
-description: How to operate Rolepass day to day, reading plans, handling orphans, and running it inside CI.
+description: How to operate RolePass day to day, reading plans, handling orphans, and running it inside CI.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Once your accounts are bootstrapped and your roles are defined, running Rolepass
+Once your accounts are bootstrapped and your roles are defined, running RolePass
 becomes a routine. This guide covers the operating model.
 
 ## Always plan before you apply
@@ -50,13 +50,13 @@ Summary: 1 to create, 1 to update, 1 to delete, 0 unchanged
 
 ## Orphan cleanup
 
-Rolepass tags every role it creates with `managed-by: rolepass`. During `plan`, it
+RolePass tags every role it creates with `managed-by: rolepass`. During `plan`, it
 lists tagged roles in each account and compares them to your config. Any tagged role
 that's no longer defined is an **orphan** and is planned for `DELETE`.
 
 This is what keeps accounts tidy: delete a role file (or drop an account from a
 role's `accounts` list), and the next `apply` removes the now-orphaned role. On
-delete, Rolepass removes the `rolepass-policy` inline policy and then the role.
+delete, RolePass removes the `rolepass-policy` inline policy and then the role.
 
 <Aside type="caution">
 Orphan detection only ever affects roles tagged `managed-by: rolepass`. Roles you
@@ -70,9 +70,9 @@ Orphan detection queries the Resource Groups Tagging API, falling back to
 take time to appear in the tagging index).
 </Aside>
 
-## Running Rolepass in CI
+## Running RolePass in CI
 
-Rolepass is designed to run in a pipeline of its own: a "roles" repo where changes
+RolePass is designed to run in a pipeline of its own: a "roles" repo where changes
 to `accounts.yaml` and `roles/` are reviewed and merged, then applied automatically.
 
 - **Skip the prompt** with `--yes` (or `-y`) so `apply` runs non-interactively. If
@@ -85,13 +85,13 @@ to `accounts.yaml` and `roles/` are reviewed and merged, then applied automatica
   `--accounts` / `--roles`. All three have environment-variable equivalents
   (`ROLEPASS_CONFIG_DIR`, `ROLEPASS_ACCOUNTS`, `ROLEPASS_ROLES`). See the
   [CLI reference](/reference/cli/).
-- Rolepass running in CI can itself federate via OIDC: if
+- RolePass running in CI can itself federate via OIDC: if
   `AWS_WEB_IDENTITY_TOKEN_FILE` and `AWS_ROLE_ARN` are set, the AWS credential chain
-  uses them automatically, so no static keys are needed to run Rolepass either.
+  uses them automatically, so no static keys are needed to run RolePass either.
 
 ## Idempotency and retries
 
-Rolepass is idempotent: re-running `apply` when nothing has changed reports all
+RolePass is idempotent: re-running `apply` when nothing has changed reports all
 roles as unchanged and makes no calls that modify state. If an `apply` partially
 fails, it reports how many operations succeeded and failed and exits non-zero, so you
 can safely re-run it to retry only the operations that still differ.

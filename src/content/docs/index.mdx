@@ -1,5 +1,5 @@
 ---
-title: Rolepass
+title: RolePass
 description: Manage AWS IAM roles for CI/CD pipelines across multiple accounts using OIDC federation.
 template: splash
 hero:
@@ -20,7 +20,7 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-Rolepass replaces hand-managed IAM roles and long-lived access keys with a single
+RolePass replaces hand-managed IAM roles and long-lived access keys with a single
 declarative config. Define your roles once, preview the exact changes, and apply
 them to any number of AWS accounts; all trust is federated through GitHub or
 GitLab OIDC, so no static credentials ever leave your CI system.
@@ -39,7 +39,7 @@ GitLab OIDC, so no static credentials ever leave your CI system.
 		Preview exactly what will be created, updated, or deleted before touching AWS.
 	</Card>
 	<Card title="Orphan detection" icon="warning">
-		Automatically finds Rolepass-managed roles that are no longer in your config.
+		Automatically finds RolePass-managed roles that are no longer in your config.
 	</Card>
 	<Card title="Partition support" icon="setting">
 		Works across the `aws`, `aws-cn`, `aws-us-gov`, and `aws-eusc` partitions.
@@ -49,7 +49,7 @@ GitLab OIDC, so no static credentials ever leave your CI system.
 ## Where to next?
 
 <CardGrid>
-	<Card title="New to Rolepass?" icon="open-book">
+	<Card title="New to RolePass?" icon="open-book">
 		Start with the [Introduction](/guides/introduction/) to learn the core
 		concepts, then follow [Getting Started](/guides/getting-started/) for a
 		hands-on walkthrough.

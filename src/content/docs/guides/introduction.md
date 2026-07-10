@@ -1,12 +1,12 @@
 ---
 title: Introduction
-description: What Rolepass is, the problem it solves, and the core concepts you need to understand before using it.
+description: What RolePass is, the problem it solves, and the core concepts you need to understand before using it.
 ---
 
-**Rolepass** manages AWS IAM roles for CI/CD pipelines across multiple AWS accounts
+**RolePass** manages AWS IAM roles for CI/CD pipelines across multiple AWS accounts
 using OIDC (OpenID Connect) federation. Instead of clicking through the IAM console
 or maintaining ad-hoc Terraform for every deploy role, you describe your roles once
-in version-controlled YAML and let Rolepass provision, update, and clean them up
+in version-controlled YAML and let RolePass provision, update, and clean them up
 across every account.
 
 ## The problem it solves
@@ -23,13 +23,13 @@ well-known drawbacks:
 
 OIDC federation fixes the credentials problem: GitHub Actions and GitLab CI can
 exchange a short-lived, signed identity token for temporary AWS credentials by
-assuming a role, with **no static secrets stored anywhere**. Rolepass fixes the
+assuming a role, with **no static secrets stored anywhere**. RolePass fixes the
 management problem: it turns the roles that back that federation into declarative,
 reviewable configuration.
 
-## How Rolepass works
+## How RolePass works
 
-Rolepass is a command-line tool. You point it at a directory of YAML files and run
+RolePass is a command-line tool. You point it at a directory of YAML files and run
 one of five commands:
 
 1. **`init`** scaffolds a starter config.
@@ -60,20 +60,20 @@ sessions last. A single role file can target multiple accounts at once. See the
 
 ### The deployer role
 
-Rolepass does not manage IAM roles with your own credentials directly. Instead,
+RolePass does not manage IAM roles with your own credentials directly. Instead,
 each target account contains a bootstrapped **deployer role** (default name
-`rolepass-deployer`) with permission to manage IAM roles. Rolepass assumes this
+`rolepass-deployer`) with permission to manage IAM roles. RolePass assumes this
 role in each account via STS, then does its work there. This keeps the blast radius
-contained and lets you grant Rolepass access account-by-account. Setting it up is
+contained and lets you grant RolePass access account-by-account. Setting it up is
 covered in [Bootstrapping AWS](/guides/bootstrapping/).
 
 ### Managed roles and orphan detection
 
-Every role Rolepass creates is tagged `managed-by: rolepass` and given a single
-inline policy named `rolepass-policy`. Because managed roles are tagged, Rolepass
+Every role RolePass creates is tagged `managed-by: rolepass` and given a single
+inline policy named `rolepass-policy`. Because managed roles are tagged, RolePass
 can find roles it created that are no longer in your config (**orphans**) and
 flag them for deletion during `plan`. This keeps your accounts free of stale roles
-without you having to track them manually. Rolepass never touches roles it didn't
+without you having to track them manually. RolePass never touches roles it didn't
 create.
 
 ## What's next

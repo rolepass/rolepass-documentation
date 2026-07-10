@@ -1,12 +1,12 @@
 ---
 title: Getting Started
-description: Scaffold a project, define your first role, and apply it to AWS for a complete first run of Rolepass.
+description: Scaffold a project, define your first role, and apply it to AWS for a complete first run of RolePass.
 ---
 
 import { Steps, Aside } from '@astrojs/starlight/components';
 
 This walkthrough takes you from an empty directory to a live IAM role. It assumes
-you've already [installed Rolepass](/guides/installation/). The `plan` and `apply`
+you've already [installed RolePass](/guides/installation/). The `plan` and `apply`
 steps require AWS access. If your accounts aren't ready yet, see
 [Bootstrapping AWS](/guides/bootstrapping/) first, or stop after `preview`, which
 needs no credentials.
@@ -75,7 +75,7 @@ needs no credentials.
 
 3. ### Validate the config
 
-   `validate` checks both files against Rolepass's JSON schemas and confirms that
+   `validate` checks both files against RolePass's JSON schemas and confirms that
    every account referenced by a role exists in `accounts.yaml`. It makes **no AWS
    calls**:
 
@@ -87,7 +87,7 @@ needs no credentials.
 
 4. ### Preview the generated policies
 
-   `preview` prints the exact IAM trust policy and permission policy Rolepass would
+   `preview` prints the exact IAM trust policy and permission policy RolePass would
    create for each role/account pair, as pretty-printed JSON. This is the best way
    to sanity-check your OIDC trust before involving AWS. It also makes **no AWS
    calls**:
@@ -125,7 +125,7 @@ needs no credentials.
 
 6. ### Apply
 
-   When the plan looks right, apply it. Rolepass shows the plan again and asks for
+   When the plan looks right, apply it. RolePass shows the plan again and asks for
    confirmation:
 
    ```sh
@@ -153,7 +153,7 @@ needs no credentials.
 
 Your role exists in AWS, tagged `managed-by: rolepass`, with a single inline policy
 named `rolepass-policy`. Re-running `plan` now reports **no changes**, because
-Rolepass is idempotent, so it's safe to run on every commit.
+RolePass is idempotent, so it's safe to run on every commit.
 
 ## Next steps
 

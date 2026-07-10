@@ -1,6 +1,6 @@
 ---
 title: CLI Reference
-description: Every Rolepass command, global option, flag, and environment variable.
+description: Every RolePass command, global option, flag, and environment variable.
 sidebar:
   order: 1
 ---
@@ -34,7 +34,7 @@ an error and changing nothing.
 
 ### `validate`
 
-Loads `accounts.yaml` and every role file and validates them against Rolepass's
+Loads `accounts.yaml` and every role file and validates them against RolePass's
 embedded JSON schemas. It also cross-validates: every account name referenced in a
 role must exist in the accounts registry. Makes no AWS calls. Exits non-zero on any
 validation error.
@@ -81,13 +81,13 @@ command-line flag takes precedence when both are set.
 | `--roles <FILE>,...`  | `ROLEPASS_ROLES`       | none    | Override role file paths (comma-separated).              |
 | `--debug`             | none                   | off     | Enable debug output for troubleshooting AWS interactions.|
 
-By default Rolepass looks for `<config-dir>/accounts.yaml` and
+By default RolePass looks for `<config-dir>/accounts.yaml` and
 `<config-dir>/roles/*.yaml` (role files are discovered recursively and processed in
 alphabetical order).
 
 ## Environment variables
 
-### Rolepass
+### RolePass
 
 | Variable              | Equivalent to     |
 | --------------------- | ----------------- |
@@ -97,7 +97,7 @@ alphabetical order).
 
 ### AWS
 
-Rolepass uses the standard AWS credential chain, so any variable the AWS SDK honors
+RolePass uses the standard AWS credential chain, so any variable the AWS SDK honors
 applies, including:
 
 | Variable                       | Purpose                                                          |
@@ -105,10 +105,10 @@ applies, including:
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN` | Static or temporary credentials.        |
 | `AWS_REGION` / `AWS_DEFAULT_REGION` | Region for STS and IAM calls.                               |
 | `AWS_PROFILE`                  | Named profile from the shared config/credentials files.          |
-| `AWS_WEB_IDENTITY_TOKEN_FILE` + `AWS_ROLE_ARN` | OIDC web-identity assumption (set automatically when Rolepass itself runs in a federated CI job). |
+| `AWS_WEB_IDENTITY_TOKEN_FILE` + `AWS_ROLE_ARN` | OIDC web-identity assumption (set automatically when RolePass itself runs in a federated CI job). |
 
 ## Exit codes
 
-Rolepass exits `0` on success and non-zero on failure, including validation
+RolePass exits `0` on success and non-zero on failure, including validation
 errors, failure to assume a deployer role, or any failed operation during `apply`.
 This makes it safe to gate CI steps on the exit status.

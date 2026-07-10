@@ -6,7 +6,7 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'Rolepass',
+			title: 'RolePass',
 			description:
 				'Manage AWS IAM roles for CI/CD pipelines across multiple accounts using OIDC federation.',
 			customCss: [

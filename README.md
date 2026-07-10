@@ -1,6 +1,6 @@
-# Rolepass Documentation
+# RolePass Documentation
 
-This repository contains the source for [rolepass.dev](https://rolepass.dev), the documentation site for [Rolepass](https://github.com/rolepass/rolepass).
+This repository contains the source for [rolepass.dev](https://rolepass.dev), the documentation site for [RolePass](https://github.com/rolepass/rolepass).
 
 The site is built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build).
 

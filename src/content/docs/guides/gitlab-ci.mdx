@@ -1,14 +1,14 @@
 ---
 title: GitLab CI
-description: Define a GitLab-federated role with Rolepass, including self-hosted instances, and assume it from a GitLab CI job.
+description: Define a GitLab-federated role with RolePass, including self-hosted instances, and assume it from a GitLab CI job.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-This guide covers defining a GitLab-federated role in Rolepass and assuming it from
+This guide covers defining a GitLab-federated role in RolePass and assuming it from
 a `.gitlab-ci.yml` job. It works with both GitLab.com and self-hosted instances.
 
-## 1. Define the role in Rolepass
+## 1. Define the role in RolePass
 
 Set `trust.provider` to `gitlab`. The `repo` is the project's full path. For a
 self-hosted instance, set `issuer` to your GitLab host:
@@ -37,7 +37,7 @@ permissions:
 
 ### How the trust is generated
 
-GitLab's OIDC subject claim uses a different shape than GitHub's. Rolepass
+GitLab's OIDC subject claim uses a different shape than GitHub's. RolePass
 translates each ref into GitLab's `project_path:...:ref_type:...:ref:...` format:
 
 | Config                       | Generated `sub` claim                                                 |
@@ -49,7 +49,7 @@ translates each ref into GitLab's `project_path:...:ref_type:...:ref:...` format
 
 <Aside type="caution">
 For GitLab, refs **must** be written as `refs/heads/<name>` (a branch) or
-`refs/tags/<name>` (a tag). Rolepass parses the prefix to derive the `ref_type` and
+`refs/tags/<name>` (a tag). RolePass parses the prefix to derive the `ref_type` and
 strips it to the short name. Any other format (for example a bare `main`) is
 rejected during policy generation. Wildcards in the short name are allowed, e.g.
 `refs/heads/*` or `refs/tags/v*`.
@@ -95,7 +95,7 @@ deploy:
 
 <Aside type="note">
 The `aud` you set under `id_tokens` (here `sts.amazonaws.com`) must match the
-audience in the role's trust policy. Rolepass always generates the audience
+audience in the role's trust policy. RolePass always generates the audience
 condition as `sts.amazonaws.com`, so use exactly that value.
 </Aside>
 
@@ -109,5 +109,5 @@ pipeline runs on, or the assume-role call returns an authorization error.
 ## Prerequisites recap
 
 The target account must have a GitLab OIDC provider registered (with an issuer URL
-matching `issuer`) and a deployer role for Rolepass to assume. See
+matching `issuer`) and a deployer role for RolePass to assume. See
 [Bootstrapping AWS](/guides/bootstrapping/).

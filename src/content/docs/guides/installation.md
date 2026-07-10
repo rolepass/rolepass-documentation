@@ -1,9 +1,9 @@
 ---
 title: Installation
-description: Download a prebuilt Rolepass binary, build it from source, or run it as a Docker container.
+description: Download a prebuilt RolePass binary, build it from source, or run it as a Docker container.
 ---
 
-Rolepass is a single self-contained binary written in Rust. Download a prebuilt
+RolePass is a single self-contained binary written in Rust. Download a prebuilt
 release, build it from source with Cargo, or run it as a container.
 
 ## Download a release
@@ -51,10 +51,10 @@ Expand-Archive rolepass.zip -DestinationPath .
 
 ## From source
 
-You need a recent Rust toolchain (Rolepass uses the 2024 edition). Install
+You need a recent Rust toolchain (RolePass uses the 2024 edition). Install
 [rustup](https://rustup.rs/) if you don't already have `cargo`.
 
-From a checkout of the Rolepass repository:
+From a checkout of the RolePass repository:
 
 ```sh
 cargo install --path .
@@ -75,7 +75,7 @@ A multi-stage Alpine-based image is provided. Build it once:
 docker build -t rolepass .
 ```
 
-Then run Rolepass against a config directory by mounting it into the container. The
+Then run RolePass against a config directory by mounting it into the container. The
 image's working directory is set with `-w`, and your config is mounted at that
 path:
 
@@ -97,7 +97,7 @@ docker run --rm \
 
 ## Verify your install
 
-The quickest way to confirm Rolepass works end-to-end without touching AWS is to
+The quickest way to confirm RolePass works end-to-end without touching AWS is to
 scaffold a project and validate it:
 
 ```sh

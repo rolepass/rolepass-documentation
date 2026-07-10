@@ -5,11 +5,11 @@ sidebar:
   order: 3
 ---
 
-Each file under `roles/` defines one IAM role. Rolepass discovers `roles/*.yaml`
+Each file under `roles/` defines one IAM role. RolePass discovers `roles/*.yaml`
 (recursively, in alphabetical order) by default. Override with `--roles` or
 `ROLEPASS_ROLES` (comma-separated paths).
 
-A single role file can target multiple accounts; Rolepass creates one IAM role per
+A single role file can target multiple accounts; RolePass creates one IAM role per
 listed account, all sharing the same trust and permissions.
 
 ## Full example
