@@ -9,6 +9,12 @@ export default defineConfig({
 			title: 'Rolepass',
 			description:
 				'Manage AWS IAM roles for CI/CD pipelines across multiple accounts using OIDC federation.',
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/rolepass/rolepass' },
+			],
+			editLink: {
+				baseUrl: 'https://github.com/rolepass/rolepass-documentation/edit/main/',
+			},
 			sidebar: [
 				{
 					label: 'Guides',
