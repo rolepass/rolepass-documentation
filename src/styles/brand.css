@@ -1,0 +1,70 @@
+/* Dark theme (Starlight default scope) */
+:root {
+	--sl-color-accent-low: #232345;
+	--sl-color-accent: #5352c9;
+	--sl-color-accent-high: #8b8bf5;
+	--sl-color-white: #e7e7f2;
+	--sl-color-gray-1: #cdcdde;
+	--sl-color-gray-2: #9a9ab8;
+	--sl-color-gray-3: #6c6c8a;
+	--sl-color-gray-4: #3c3c56;
+	--sl-color-gray-5: #26263a;
+	--sl-color-gray-6: #1b1b2b;
+	--sl-color-black: #131320;
+}
+
+/* Light theme */
+:root[data-theme='light'] {
+	--sl-color-accent-low: #e3e3fa;
+	--sl-color-accent: #5352c9;
+	--sl-color-accent-high: #333288;
+	--sl-color-white: #1c1c2e;
+	--sl-color-gray-1: #2a2a40;
+	--sl-color-gray-2: #46465e;
+	--sl-color-gray-3: #6c6c8a;
+	--sl-color-gray-4: #9a9ab8;
+	--sl-color-gray-5: #c3c3d4;
+	--sl-color-gray-6: #e0e0ea;
+	--sl-color-gray-7: #ececf4;
+	--sl-color-black: #f5f5fa;
+}
+
+/* Type: Familjen Grotesk for display, JetBrains Mono for code; body stays system sans. */
+:root {
+	--sl-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.content-panel h1,
+.hero h1,
+.hero .tagline,
+.site-title {
+	font-family: 'Familjen Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
+}
+.sl-markdown-content h1,
+.content-panel h1,
+.hero h1 {
+	letter-spacing: -0.01em;
+}
+
+/* Header lockup (rendered by SiteTitle override) */
+.site-title {
+	gap: 0.55em;
+	font-size: 1.25rem;
+	letter-spacing: -0.015em;
+	font-weight: 500;
+	color: var(--sl-color-white);
+	text-decoration: none;
+}
+.site-title svg {
+	width: 1.35em;
+	height: 1.35em;
+	color: var(--sl-color-accent-high);
+	flex: none;
+}
+.site-title b {
+	font-weight: 700;
+	color: var(--sl-color-accent-high);
+}
