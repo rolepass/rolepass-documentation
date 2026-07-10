@@ -103,15 +103,16 @@ script.
 
 ## Partitions and ARNs
 
-Rolepass builds ARNs using each account's `partition`. If you operate in AWS China
-or GovCloud, set `partition` on those accounts in `accounts.yaml` so the generated
-provider ARNs use the correct prefix:
+Rolepass builds ARNs using each account's `partition`. If you operate in AWS China,
+GovCloud, or the European Sovereign Cloud, set `partition` on those accounts in
+`accounts.yaml` so the generated provider ARNs use the correct prefix:
 
-| Partition    | ARN prefix                         |
-| ------------ | ---------------------------------- |
-| `aws`        | `arn:aws:...` (default)            |
-| `aws-cn`     | `arn:aws-cn:...` (China)           |
-| `aws-us-gov` | `arn:aws-us-gov:...` (GovCloud)    |
+| Partition    | ARN prefix                                      |
+| ------------ | ----------------------------------------------- |
+| `aws`        | `arn:aws:...` (default)                         |
+| `aws-cn`     | `arn:aws-cn:...` (China)                        |
+| `aws-us-gov` | `arn:aws-us-gov:...` (GovCloud)                 |
+| `aws-eusc`   | `arn:aws-eusc:...` (European Sovereign Cloud)   |
 
 For example, a GitHub OIDC provider ARN in the China partition becomes
 `arn:aws-cn:iam::<account-id>:oidc-provider/token.actions.githubusercontent.com`.

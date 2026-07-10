@@ -56,10 +56,10 @@ unique.
 
 #### `partition`
 
-- One of: `aws`, `aws-cn`, `aws-us-gov`.
+- One of: `aws`, `aws-cn`, `aws-us-gov`, `aws-eusc`.
 - Determines the ARN prefix Rolepass generates for this account (for example the
-  OIDC provider ARN). Set it for China and GovCloud accounts; the default `aws`
-  covers all standard commercial regions.
+  OIDC provider ARN). Set it for China, GovCloud, and European Sovereign Cloud
+  accounts; the default `aws` covers all standard commercial regions.
 
 #### `deployer_role_name`
 

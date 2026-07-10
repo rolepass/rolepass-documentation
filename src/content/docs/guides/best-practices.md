@@ -84,6 +84,7 @@ Review `DELETE` lines in every plan so a removal is never a surprise.
 
 ## Handle non-standard partitions explicitly
 
-If you operate in AWS China (`aws-cn`) or GovCloud (`aws-us-gov`), set the
-`partition` field on those accounts so Rolepass builds correct ARNs. Don't assume
-the default `aws` partition applies everywhere.
+If you operate in AWS China (`aws-cn`), GovCloud (`aws-us-gov`), or the European
+Sovereign Cloud (`aws-eusc`), set the `partition` field on those accounts so
+Rolepass builds correct ARNs. Don't assume the default `aws` partition applies
+everywhere.

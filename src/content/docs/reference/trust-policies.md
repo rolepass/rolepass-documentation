@@ -32,6 +32,7 @@ Examples:
 - GitLab, `aws` partition: `arn:aws:iam::222222222222:oidc-provider/gitlab.com`
 - Self-hosted GitLab (`issuer: gitlab.mycompany.com`): `arn:aws:iam::333333333333:oidc-provider/gitlab.mycompany.com`
 - GitHub, `aws-cn` partition: `arn:aws-cn:iam::444444444444:oidc-provider/token.actions.githubusercontent.com`
+- GitHub, `aws-eusc` partition: `arn:aws-eusc:iam::555555555555:oidc-provider/token.actions.githubusercontent.com`
 
 ## Conditions
 
