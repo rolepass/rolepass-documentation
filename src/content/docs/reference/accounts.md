@@ -73,3 +73,20 @@ unique.
 `rolepass validate` checks this file against the schema and confirms that every
 account name referenced by a role file exists here. A role referring to an unknown
 account is a validation error.
+
+## Editor support
+
+The JSON schema is published at
+[`https://releases.rolepass.dev/latest/accounts.schema.json`](https://releases.rolepass.dev/latest/accounts.schema.json).
+Editors with YAML language server support (VS Code with the YAML extension,
+JetBrains IDEs, Neovim) pick it up from a modeline at the top of the file,
+giving you completion and inline validation as you type:
+
+```yaml title="accounts.yaml"
+# yaml-language-server: $schema=https://releases.rolepass.dev/latest/accounts.schema.json
+accounts:
+  - name: production
+    id: "123456789012"
+```
+
+Files scaffolded by `rolepass init` include this line already.

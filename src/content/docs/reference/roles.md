@@ -56,7 +56,7 @@ max_session_duration: 1800
 | `accounts`             | Yes      | none    | List of account names (from `accounts.yaml`) to deploy into.    |
 | `trust`                | Yes      | none    | Trust / federation settings. See [`trust`](#trust).             |
 | `permissions`          | Yes      | none    | List of IAM policy statements. See [`permissions`](#permissions).|
-| `max_session_duration` | No       | `3600`  | Maximum session duration in seconds (3600–43200).               |
+| `max_session_duration` | No       | `3600`  | Maximum session duration in seconds (3600-43200).               |
 
 ### `name`
 
@@ -134,3 +134,18 @@ renders to:
 `rolepass validate` checks every role file against the schema and confirms all
 account references resolve. Use `rolepass preview` to see the fully-rendered trust
 and permission policies without touching AWS.
+
+## Editor support
+
+The JSON schema is published at
+[`https://releases.rolepass.dev/latest/role.schema.json`](https://releases.rolepass.dev/latest/role.schema.json).
+Editors with YAML language server support (VS Code with the YAML extension,
+JetBrains IDEs, Neovim) pick it up from a modeline at the top of the file,
+giving you completion and inline validation as you type:
+
+```yaml title="roles/deploy.yaml"
+# yaml-language-server: $schema=https://releases.rolepass.dev/latest/role.schema.json
+name: deploy
+```
+
+Files scaffolded by `rolepass init` include this line already.
