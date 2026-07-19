@@ -16,6 +16,16 @@ export default defineConfig({
 				'@fontsource/jetbrains-mono/400.css',
 				'./src/styles/brand.css',
 			],
+			head: [
+				{
+					tag: 'script',
+					attrs: {
+						defer: true,
+						src: 'https://tally.0x9.systems/script.js',
+						'data-website-id': 'f1bae7fa-ed89-4edc-baa4-923e4052c7b5'
+					}
+				}
+			],
 			components: {
 				SiteTitle: './src/components/SiteTitle.astro',
 			},
